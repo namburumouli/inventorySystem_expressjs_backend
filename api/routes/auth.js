@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const HttpStatus = require('http-status-codes');
 
 const Auth = require("../model/auth");
 const { default: mongoose } = require('mongoose');
@@ -10,39 +11,40 @@ router.use(bodyParser.json());
 
 
 
-router.post('/registration',(req,res,next)=>{
-    const auth = new Auth({
-        _id: new mongoose.Types.ObjectId,
-        email:req.body.email,
-        password:req.body.password,
-        role:req.body.role
-    })
 
-    Auth
-    .findByEmail(req.body.email)
-    .then((result) =>{
-        res.status(409).json({
-            message:"This email already registered with ".concat(result.role)
-        })
-    }).catch((ex) =>{
-        auth
-        .save()
-        .then((result) =>{
-            res.status(200).json({
-                message:"Register Success",
-            })
-        })
-        .catch((err) => {
-            res.status(500).json({
-                message:"Something went wrong"
-            })
-        })
-    })
+router.post('/registration', async (req, res, next) => {
+    try {
+        const existingUser = await Auth.findByEmail(req.body.email);
 
-   
+        if (existingUser) {
+            return sendErrorResponse(res, HttpStatus.CONFLICT, `This email is already registered with ${existingUser.role}`);
+        }
 
+        const newUser = new Auth({
+            _id: new mongoose.Types.ObjectId,
+            email: req.body.email,
+            password: req.body.password,
+            role: req.body.role
+        });
 
-})
+        await newUser.save();
+        sendSuccessResponse(res, HttpStatus.OK, 'Registration successful');
+    } catch (error) {
+        sendErrorResponse(res, HttpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong');
+    }
+});
+
+function sendSuccessResponse(res, status, message) {
+    res.status(status).json({
+        message: message,
+    });
+}
+
+function sendErrorResponse(res, status, message) {
+    res.status(status).json({
+        message: message,
+    });
+}
 
 
 router.post('/login',(req,res,next) =>{
