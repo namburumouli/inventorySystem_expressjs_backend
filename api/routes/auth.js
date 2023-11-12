@@ -9,12 +9,10 @@ const bodyParser = require('body-parser');
 router.use(bodyParser.json());
 
 
-
-
-
 router.post('/registration', async (req, res, next) => {
     try {
         const existingUser = await Auth.findByEmail(req.body.email);
+        console.log(existingUser)
 
         if (existingUser) {
             return sendErrorResponse(res, HttpStatus.CONFLICT, `This email is already registered with ${existingUser.role}`);

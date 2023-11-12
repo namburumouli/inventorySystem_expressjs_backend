@@ -16,8 +16,12 @@ inventorySchema.statics.findByLabNumberAndCategory = function (labNumber,categor
   };
 
   inventorySchema.statics.findByInventoryNumber = function (inventoryNumber) {
-    return this.find({ inventoryNumber });
+    return this.findOne({ inventoryNumber });
   };
+
+  inventorySchema.statics.findByLabNumber = function (labNumber){
+    return this.findOne({labNumber})
+  }
 
 
 module.exports = mongoose.model("Inventory",inventorySchema)

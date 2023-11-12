@@ -3,10 +3,18 @@ const Inventory = require('../model/inventory');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const { default: mongoose } = require('mongoose');
+const HttpStatus = require('http-status-codes');
 
 router.use(bodyParser.json());
 
-router.post('/register',(req,res,next) =>{
+router.post('/register', async (req,res,next) =>{
+
+    const inventoryData = await Inventory.findByInventoryNumber(req.body.InventoryNumber)
+
+    console.log(inventoryData)
+    if(inventoryData){
+        return sendErrorResponse(res, HttpStatus.CONFLICT, `Inventory Already Exist with this number `);
+    }
 
     const inventory = new Inventory({
         _id: new mongoose.Types.ObjectId,
@@ -15,7 +23,7 @@ router.post('/register',(req,res,next) =>{
         category:req.body.Category,
         licenceExpiryDate:req.body.LicenceExpiryDate
     })
-    console.log(inventory)
+   
 
     inventory
     .save()
@@ -131,6 +139,13 @@ router.put('/updateInventories', async (req, res) => {
       });
     }
   });
+
+
+  function sendErrorResponse(res, status, message) {
+    res.status(status).json({
+        message: message,
+    });
+}
   
   
   
