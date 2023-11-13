@@ -21,7 +21,8 @@ router.post('/register', async (req,res,next) =>{
         inventoryNumber:req.body.InventoryNumber,
         labNumber:req.body.LabNumber,
         category:req.body.Category,
-        licenceExpiryDate:req.body.LicenceExpiryDate
+        licenceExpiryDate:req.body.LicenceExpiryDate,
+        status:"Active"
     })
    
 
@@ -73,7 +74,7 @@ router.post('/compliant', (req, res, next) => {
         })
         .then((updatedInventory) => {
             res.status(200).json({
-                message: "Inventory updated successfully",
+                message: "Compliant Registered successfully",
                 updatedInventory
             });
         })
